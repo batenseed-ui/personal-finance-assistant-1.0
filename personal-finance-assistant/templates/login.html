@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Log in - Personal Finance Assistant</title>
+<style>
+  :root {
+    color-scheme: dark;
+    --text: #eef3ff; --muted: #b3c0dd; --line: rgba(190, 210, 255, 0.28);
+    --accent: #4fd6c0; --danger: #ff8b7e; --ok: #5fe0a3;
+  }
+  * { box-sizing: border-box; }
+  html { background: #031a1c; }
+  body {
+    margin: 0; min-height: 100vh; display: grid; place-items: center; padding: 16px; color: var(--text);
+    font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  body::before {
+    content: ""; position: fixed; inset: -60px; z-index: -1; pointer-events: none;
+    background:
+    radial-gradient(ellipse at 78% 18%, rgba(232, 199, 102, .20), transparent 48%),
+    radial-gradient(ellipse at 15% 88%, rgba(40, 200, 170, .22), transparent 55%),
+    url("/static/img/bg-emerald.svg") center / cover no-repeat,
+    linear-gradient(150deg, #031a1c 0%, #05302f 50%, #083f45 100%);
+    filter: blur(15px);
+  }
+  .card {
+    width: 100%; max-width: 420px; background: transparent; border: 1px solid var(--line);
+    border-radius: 12px; padding: 28px 24px;
+  }
+  h1 { margin: 0 0 4px; font-size: 1.4rem; }
+  .sub { margin: 0 0 20px; color: var(--muted); font-size: .95rem; }
+  .tabs { display: flex; gap: 4px; margin-bottom: 20px; border-bottom: 1px solid var(--line); }
+  .tabs button {
+    flex: 1; padding: 10px 0; background: none; border: 0; border-bottom: 3px solid transparent;
+    color: var(--muted); font: inherit; font-weight: 600; cursor: pointer;
+  }
+  .tabs button[aria-selected="true"] { color: var(--text); border-bottom-color: var(--accent); }
+  form[hidden] { display: none; }
+  label { display: block; margin: 14px 0 4px; font-weight: 600; font-size: .92rem; }
+  input[type="text"], input[type="password"] {
+    width: 100%; padding: 10px 12px; font: inherit; color: var(--text); background: transparent;
+    border: 1px solid var(--line); border-radius: 8px;
+  }
+  input:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  input[aria-invalid="true"] { border-color: var(--danger); }
+  .hint { margin: 4px 0 0; color: var(--muted); font-size: .85rem; }
+  .field-error { margin: 4px 0 0; color: var(--danger); font-size: .88rem; min-height: 0; }
+  .show { display: flex; align-items: center; gap: 8px; margin: 12px 0 0; font-weight: 400; font-size: .9rem; color: var(--muted); }
+  .submit {
+    width: 100%; margin-top: 20px; padding: 12px; font: inherit; font-weight: 700; cursor: pointer;
+    color: var(--accent); background: rgba(79, 214, 192, 0.14); border: 1px solid var(--accent); border-radius: 8px;
+  }
+  .submit:hover { background: rgba(255, 255, 255, 0.1); }
+  .submit[disabled] { opacity: .6; cursor: progress; }
+  .msg { margin: 14px 0 0; font-size: .95rem; }
+  .msg.error { color: var(--danger); }
+  .msg.ok { color: var(--ok); }
+  .note { margin: 20px 0 0; color: var(--muted); font-size: .82rem; }
+
+  /* Start page: deep emerald welcome screen with flowing lines. */
+  .splash {
+    position: fixed; inset: 0; z-index: 100; display: flex; align-items: center; justify-content: center;
+    padding: 24px; border: 0; width: 100%; color: var(--text); font: inherit;
+    background:
+      radial-gradient(ellipse at 78% 18%, rgba(232, 199, 102, .20), transparent 48%),
+      radial-gradient(ellipse at 15% 88%, rgba(40, 200, 170, .22), transparent 55%),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1600 900' preserveAspectRatio='xMidYMid slice'%3E%3Cg fill='none' stroke-width='1.3'%3E%3Cpath d='M-100 560 C 280 360, 620 800, 1000 580 S 1500 380, 1700 520' stroke='%237ff0d6' stroke-opacity='0.34'/%3E%3Cpath d='M-100 594 C 280 394, 620 834, 1000 614 S 1500 414, 1700 554' stroke='%237ff0d6' stroke-opacity='0.31'/%3E%3Cpath d='M-100 628 C 280 428, 620 868, 1000 648 S 1500 448, 1700 588' stroke='%237ff0d6' stroke-opacity='0.28'/%3E%3Cpath d='M-100 662 C 280 462, 620 902, 1000 682 S 1500 482, 1700 622' stroke='%237ff0d6' stroke-opacity='0.25'/%3E%3Cpath d='M-100 696 C 280 496, 620 936, 1000 716 S 1500 516, 1700 656' stroke='%237ff0d6' stroke-opacity='0.22'/%3E%3Cpath d='M-100 730 C 280 530, 620 970, 1000 750 S 1500 550, 1700 690' stroke='%237ff0d6' stroke-opacity='0.19'/%3E%3Cpath d='M-100 764 C 280 564, 620 1004, 1000 784 S 1500 584, 1700 724' stroke='%237ff0d6' stroke-opacity='0.16'/%3E%3Cpath d='M-100 798 C 280 598, 620 1038, 1000 818 S 1500 618, 1700 758' stroke='%237ff0d6' stroke-opacity='0.13'/%3E%3Cpath d='M-100 832 C 280 632, 620 1072, 1000 852 S 1500 652, 1700 792' stroke='%237ff0d6' stroke-opacity='0.1'/%3E%3Ccircle cx='1290' cy='190' r='90' stroke='%23e8c766' stroke-opacity='0.34'/%3E%3Ccircle cx='1290' cy='190' r='170' stroke='%23e8c766' stroke-opacity='0.26'/%3E%3Ccircle cx='1290' cy='190' r='260' stroke='%23e8c766' stroke-opacity='0.18'/%3E%3Ccircle cx='1290' cy='190' r='360' stroke='%23e8c766' stroke-opacity='0.1'/%3E%3C/g%3E%3C/svg%3E") center / cover no-repeat,
+      linear-gradient(150deg, #031a1c 0%, #05302f 50%, #083f45 100%);
+    transition: opacity .45s ease, visibility .45s ease;
+  }
+  .splash[hidden] { display: none; }
+  .splash.leaving { opacity: 0; visibility: hidden; pointer-events: none; }
+  .splash .welcome-copy { display: flex; flex-direction: column; align-items: center; gap: 14px; width: min(1100px, 100%); padding: clamp(20px, 3vw, 40px); text-align: center; background: none; border: 0; box-shadow: none; }
+  .welcome-eyebrow { margin: 0; width: 100%; font-size: clamp(1.4rem, 3.4vw, 3.3rem); line-height: 1.08; letter-spacing: .04em; font-weight: 900; text-transform: uppercase; white-space: nowrap;
+    background: linear-gradient(100deg, #ffffff 0%, #ffffff 45%, #f6dc86 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent;
+    filter: drop-shadow(0 0 22px rgba(127, 240, 214, .45)) drop-shadow(0 4px 14px rgba(0, 0, 0, .45)); }
+  .welcome-eyebrow::after { content: ""; display: block; width: 120px; height: 4px; margin: 22px auto 0; border-radius: 3px; background: linear-gradient(90deg, #7ff0d6, #f6dc86); box-shadow: 0 0 16px rgba(127, 240, 214, .5); }
+  .welcome-subtitle { display: none; }
+  .motto-box { display: flex; flex-direction: column; align-items: center; gap: 10px; max-width: 680px; margin-top: 18px; padding: 24px 34px; border: 1px solid rgba(255, 255, 255, .3); border-radius: 18px; background: rgba(255, 255, 255, .06); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+  .finance-motto { font-size: clamp(.85rem, 1.25vw, 1.05rem); line-height: 1.65; font-weight: 400; font-style: italic; color: rgba(236, 246, 245, .92); text-wrap: balance; }
+  .motto-attribution { font-size: .78rem; letter-spacing: .1em; text-transform: uppercase; color: #f0d27a; }
+  .continue-button { margin-top: 26px; min-width: 210px; padding: 12px 28px; border: 1px solid rgba(127, 240, 214, .85); border-radius: 999px; color: #fff; background: rgba(127, 240, 214, .14); font: inherit; font-weight: 700; cursor: pointer; transition: background .18s ease, transform .18s ease; }
+  .continue-button:hover { background: rgba(127, 240, 214, .3); transform: translateY(-2px); }
+  @media (max-width: 600px) { .splash { padding: 12px; } .welcome-eyebrow { font-size: clamp(1.2rem, 6.4vw, 2rem); letter-spacing: .03em; white-space: normal; } .motto-box { padding: 18px 16px; } }
+  @media (prefers-reduced-motion: reduce) { .splash, .continue-button { transition: none; } }
+</style>
+</head>
+<body>
+<section class="splash" id="splash" aria-label="Welcome to Personal Finance Assistant" hidden>
+  <div class="welcome-copy">
+    <h1 class="welcome-eyebrow">PERSONAL FINANCE ASSISTANT</h1>
+    <div class="motto-box">
+      <span id="finance-motto" class="finance-motto"></span>
+      <span id="motto-attribution" class="motto-attribution"></span>
+    </div>
+    <button type="button" class="continue-button" id="continue-button">Continue to login&nbsp; →</button>
+  </div>
+</section>
+<main class="card">
+  <h1>Personal Finance Assistant</h1>
+  <p class="sub">Log in to see your finances. Your saved results are private to your account.</p>
+
+  <div class="tabs" role="tablist" aria-label="Account">
+    <button type="button" role="tab" id="tab-login" aria-selected="true" aria-controls="form-login">Log in</button>
+    <button type="button" role="tab" id="tab-register" aria-selected="false" aria-controls="form-register">Create account</button>
+  </div>
+
+  <form id="form-login" role="tabpanel" aria-labelledby="tab-login" novalidate>
+    <label for="login-username">Username</label>
+    <input id="login-username" name="username" type="text" autocomplete="username" autocapitalize="none" spellcheck="false" required>
+
+    <label for="login-password">Password</label>
+    <input id="login-password" name="password" type="password" autocomplete="current-password" required>
+    <label class="show"><input type="checkbox" data-show-password> Show password</label>
+
+    <button class="submit" type="submit">Log in</button>
+    <p class="msg" role="alert" data-message></p>
+  </form>
+
+  <form id="form-register" role="tabpanel" aria-labelledby="tab-register" novalidate hidden>
+    <label for="register-username">Username</label>
+    <input id="register-username" name="username" type="text" autocomplete="username" autocapitalize="none" spellcheck="false" required>
+    <p class="hint">3-32 characters: letters, numbers, dot, dash or underscore.</p>
+    <p class="field-error" data-error-for="username"></p>
+
+    <label for="register-password">Password</label>
+    <input id="register-password" name="password" type="password" autocomplete="new-password" required>
+    <p class="hint">At least 8 characters.</p>
+    <p class="field-error" data-error-for="password"></p>
+
+    <label for="register-confirm">Confirm password</label>
+    <input id="register-confirm" name="confirm" type="password" autocomplete="new-password" required>
+    <p class="field-error" data-error-for="confirm"></p>
+    <label class="show"><input type="checkbox" data-show-password> Show passwords</label>
+
+    <button class="submit" type="submit">Create account</button>
+    <p class="msg" role="alert" data-message></p>
+  </form>
+
+  <p class="note">Passwords are stored only as salted hashes. Nothing here is financial advice.</p>
+</main>
+
+<script>
+(function () {
+  "use strict";
+
+  var popup = new URLSearchParams(window.location.search).get("popup") === "1";
+
+  // Pick one short, widely attributed finance/investing motto on each welcome visit.
+  var mottos = [
+    { quote: "The most important investment you can make is in yourself.", author: "Warren Buffett" },
+    { quote: "Price is what you pay. Value is what you get.", author: "Warren Buffett" },
+    { quote: "Risk comes from not knowing what you’re doing.", author: "Warren Buffett" },
+    { quote: "Be fearful when others are greedy, and greedy when others are fearful.", author: "Warren Buffett" },
+    { quote: "Someone is sitting in the shade today because someone planted a tree a long time ago.", author: "Warren Buffett" },
+    { quote: "Rule No. 1: Never lose money. Rule No. 2: Never forget Rule No. 1.", author: "Warren Buffett" },
+    { quote: "Do not save what is left after spending, but spend what is left after saving.", author: "Warren Buffett" },
+    { quote: "The stock market is a device for transferring money from the impatient to the patient.", author: "Warren Buffett" },
+    { quote: "Never invest in a business you cannot understand.", author: "Warren Buffett" },
+    { quote: "Only buy something that you’d be perfectly happy to hold if the market shut down for ten years.", author: "Warren Buffett" },
+    { quote: "An investment in knowledge pays the best interest.", author: "Benjamin Franklin" },
+    { quote: "A penny saved is a penny earned.", author: "Benjamin Franklin" },
+    { quote: "Beware of little expenses; a small leak will sink a great ship.", author: "Benjamin Franklin" },
+    { quote: "The way to wealth depends chiefly on two words, industry and frugality.", author: "Benjamin Franklin" },
+    { quote: "If you would be wealthy, think of saving as well as of getting.", author: "Benjamin Franklin" },
+    { quote: "Know what you own, and know why you own it.", author: "Peter Lynch" },
+    { quote: "The key to making money in stocks is not to get scared out of them.", author: "Peter Lynch" },
+    { quote: "Far more money has been lost by investors preparing for corrections than has been lost in the corrections themselves.", author: "Peter Lynch" },
+    { quote: "The four most dangerous words in investing are: ‘This time it’s different.’", author: "Sir John Templeton" },
+    { quote: "Bull markets are born on pessimism, grow on skepticism, mature on optimism and die on euphoria.", author: "Sir John Templeton" },
+    { quote: "The best time to invest is when you have money.", author: "Sir John Templeton" },
+    { quote: "The investor’s chief problem, and even his worst enemy, is likely to be himself.", author: "Benjamin Graham" },
+    { quote: "In the short run, the market is a voting machine, but in the long run it is a weighing machine.", author: "Benjamin Graham" },
+    { quote: "The individual investor should act consistently as an investor and not as a speculator.", author: "Benjamin Graham" },
+    { quote: "The intelligent investor is a realist who sells to optimists and buys from pessimists.", author: "Benjamin Graham" },
+    { quote: "Don’t look for the needle in the haystack. Just buy the haystack!", author: "John C. Bogle" },
+    { quote: "Time is your friend; impulse is your enemy.", author: "John C. Bogle" },
+    { quote: "The miracle of compounding returns is overwhelmed by the tyranny of compounding costs.", author: "John C. Bogle" },
+    { quote: "It’s not whether you’re right or wrong, but how much money you make when you’re right and how much you lose when you’re wrong.", author: "George Soros" },
+    { quote: "Markets are constantly in a state of uncertainty and flux, and money is made by discounting the obvious and betting on the unexpected.", author: "George Soros" },
+    { quote: "The big money is not in the buying and selling, but in the waiting.", author: "Charlie Munger" },
+    { quote: "Invert, always invert.", author: "Charlie Munger" },
+    { quote: "The first rule of compounding: never interrupt it unnecessarily.", author: "Charlie Munger" },
+    { quote: "It’s not supposed to be easy. Anyone who finds it easy is stupid.", author: "Charlie Munger" },
+    { quote: "He who lives by the crystal ball will eat shattered glass.", author: "Ray Dalio" },
+    { quote: "You can’t predict. You can prepare.", author: "Howard Marks" },
+    { quote: "Value investing is at its core the marriage of a contrarian streak and a calculator.", author: "Seth Klarman" },
+    { quote: "Diversification is the only free lunch.", author: "Harry Markowitz" },
+    { quote: "If the job has been correctly done when a common stock is purchased, the time to sell it is almost never.", author: "Philip Fisher" },
+    { quote: "Don’t try to buy at the bottom and sell at the top. It can’t be done except by liars.", author: "Bernard Baruch" },
+    { quote: "It never was my thinking that made the big money for me. It always was my sitting.", author: "Jesse Livermore" },
+    { quote: "Put all your eggs in one basket, and then watch that basket.", author: "Andrew Carnegie" },
+    { quote: "Do you know the only thing that gives me pleasure? It’s to see my dividends coming in.", author: "John D. Rockefeller" },
+    { quote: "Asked what the market would do: “It will fluctuate.”", author: "J. P. Morgan" },
+    { quote: "A national debt, if it is not excessive, will be to us a national blessing.", author: "Alexander Hamilton" },
+    { quote: "It is not from the benevolence of the butcher, the brewer, or the baker that we expect our dinner, but from their regard to their own interest.", author: "Adam Smith" },
+    { quote: "In the long run we are all dead.", author: "John Maynard Keynes" },
+    { quote: "Investing should be more like watching paint dry or watching grass grow.", author: "Paul Samuelson" },
+    { quote: "The time to buy is when there’s blood in the streets.", author: "Baron Rothschild" },
+    { quote: "In investing, what is comfortable is rarely profitable.", author: "Robert Arnott" }
+  ];
+  var motto = mottos[Math.floor(Math.random() * mottos.length)];
+  var mottoNode = document.getElementById("finance-motto");
+  var authorNode = document.getElementById("motto-attribution");
+  if (mottoNode) mottoNode.textContent = "“" + motto.quote + "”";
+  if (authorNode) authorNode.textContent = "— " + motto.author;
+
+  // Start page: show the splash first. The user advances only by pressing the button.
+  var splash = document.getElementById("splash");
+  function leaveSplash() {
+    if (splash.hidden) { return; }
+    splash.classList.add("leaving");
+    setTimeout(function () {
+      splash.hidden = true;
+      var first = document.getElementById("login-username");
+      if (first) { first.focus(); }
+    }, 500);
+  }
+  if (!popup) {
+    splash.hidden = false;
+    document.getElementById("continue-button").addEventListener("click", leaveSplash);
+  }
+  var forms = {
+    login: document.getElementById("form-login"),
+    register: document.getElementById("form-register")
+  };
+  var tabs = {
+    login: document.getElementById("tab-login"),
+    register: document.getElementById("tab-register")
+  };
+
+  function showTab(which) {
+    Object.keys(forms).forEach(function (name) {
+      var active = name === which;
+      forms[name].hidden = !active;
+      tabs[name].setAttribute("aria-selected", active ? "true" : "false");
+    });
+    forms[which].querySelector("input").focus();
+  }
+  tabs.login.addEventListener("click", function () { showTab("login"); });
+  tabs.register.addEventListener("click", function () { showTab("register"); });
+
+  Array.prototype.forEach.call(document.querySelectorAll("[data-show-password]"), function (box) {
+    box.addEventListener("change", function () {
+      var form = box.closest("form");
+      Array.prototype.forEach.call(form.querySelectorAll('input[name="password"], input[name="confirm"]'), function (input) {
+        input.type = box.checked ? "text" : "password";
+      });
+    });
+  });
+
+  function setMessage(form, text, kind) {
+    var el = form.querySelector("[data-message]");
+    el.textContent = text || "";
+    el.className = "msg" + (kind ? " " + kind : "");
+  }
+
+  function setFieldError(form, name, text) {
+    var input = form.querySelector('input[name="' + name + '"]');
+    var holder = form.querySelector('[data-error-for="' + name + '"]');
+    if (input) { input.setAttribute("aria-invalid", text ? "true" : "false"); }
+    if (holder) { holder.textContent = text || ""; }
+  }
+
+  function clearErrors(form) {
+    setMessage(form, "");
+    ["username", "password", "confirm"].forEach(function (name) { setFieldError(form, name, ""); });
+  }
+
+  async function postJson(url, body) {
+    var response;
+    try {
+      response = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "same-origin",
+        body: JSON.stringify(body)
+      });
+    } catch (err) {
+      return { networkError: true };
+    }
+    var data = {};
+    try { data = await response.json(); } catch (err) { /* non-JSON error page */ }
+    return { status: response.status, ok: response.ok && data.ok === true, data: data };
+  }
+
+  function signedIn(form) {
+    if (popup) {
+      setMessage(form, "Signed in. You can close this tab and go back to your analysis.", "ok");
+      return;
+    }
+    window.location.replace("/");
+  }
+
+  async function handle(form, url, body, afterFail) {
+    var button = form.querySelector(".submit");
+    clearErrors(form);
+    button.disabled = true;
+    var result = await postJson(url, body);
+    button.disabled = false;   // inputs are never cleared, so nothing the user typed is lost
+
+    if (result.networkError) {
+      setMessage(form, "Could not reach the server. Check your connection and try again.", "error");
+      return;
+    }
+    if (result.ok) { signedIn(form); return; }
+
+    var data = result.data || {};
+    var fieldErrors = data.field_errors || {};
+    Object.keys(fieldErrors).forEach(function (name) { setFieldError(form, name, fieldErrors[name]); });
+    if (!Object.keys(fieldErrors).length) {
+      setMessage(form, data.error || "Something went wrong. Please try again.", "error");
+    } else if (data.error && result.status !== 400) {
+      setMessage(form, data.error, "error");
+    }
+    if (afterFail) { afterFail(result); }
+  }
+
+  forms.login.addEventListener("submit", function (event) {
+    event.preventDefault();
+    handle(forms.login, "/api/login", {
+      username: forms.login.elements.username.value,
+      password: forms.login.elements.password.value
+    }, function () { forms.login.elements.password.focus(); forms.login.elements.password.select(); });
+  });
+
+  forms.register.addEventListener("submit", function (event) {
+    event.preventDefault();
+    var form = forms.register;
+    var password = form.elements.password.value;
+    if (password !== form.elements.confirm.value) {
+      clearErrors(form);
+      setFieldError(form, "confirm", "The two passwords do not match.");
+      return;
+    }
+    handle(form, "/api/register", {
+      username: form.elements.username.value,
+      password: password
+    });
+  });
+
+  if (popup) { forms.login.elements.username.focus(); }
+})();
+</script>
+</body>
+</html>

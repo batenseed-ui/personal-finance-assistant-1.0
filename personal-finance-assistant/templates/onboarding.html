@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Your profile - Personal Finance Assistant</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<style>
+.onboard-wrap{width:min(760px,calc(100% - 32px));margin:5vh auto 36px}
+.onboard-card{background:rgba(7,17,43,.22);backdrop-filter:blur(14px);border:1px solid rgba(173,207,255,.28);border-radius:22px;padding:clamp(20px,4vw,34px);box-shadow:0 20px 60px rgba(0,0,0,.16)}
+.eyebrow{color:#7deaff;text-transform:uppercase;letter-spacing:.2em;font-size:.76rem;font-weight:800}
+.onboard-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 18px}.onboard-grid .field{margin:0}
+.insurance-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.check-row{display:flex;gap:12px;align-items:center;min-width:0;padding:14px 16px;border:1px solid rgba(85,223,245,.24);border-radius:14px;background:linear-gradient(120deg,rgba(7,25,58,.34),rgba(26,24,68,.22));margin-top:12px;min-height:64px;transition:border-color .18s ease,background .18s ease,box-shadow .18s ease}.check-row:focus-within{border-color:rgba(85,223,245,.78);box-shadow:0 0 0 3px rgba(85,223,245,.09)}.check-row:has(input:checked){border-color:rgba(85,223,245,.68);background:linear-gradient(110deg,rgba(0,176,210,.16),rgba(111,79,255,.17));box-shadow:inset 0 0 18px rgba(85,223,245,.035)}
+.check-row input{appearance:none;-webkit-appearance:none;box-sizing:border-box;flex:0 0 20px;width:20px;min-width:20px;height:20px;min-height:20px;margin:0;padding:0;border:1.5px solid rgba(159,203,255,.72);border-radius:6px;background:rgba(2,10,30,.5);display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:none;position:relative}.check-row input::before{content:"";display:block;width:8px;height:4px;border-left:2px solid #06142d;border-bottom:2px solid #06142d;transform:translateY(-1px) rotate(-45deg) scale(0);transform-origin:center;transition:transform .12s ease}.check-row input:checked{background:linear-gradient(135deg,#55dff5,#9a7bff);border-color:#9aefff;box-shadow:0 0 12px rgba(85,223,245,.2)}.check-row input:checked::before{transform:translateY(-1px) rotate(-45deg) scale(1)}.check-row input:focus-visible{outline:2px solid #55dff5;outline-offset:3px}.check-row label{display:block;font-weight:550;line-height:1.45;cursor:pointer;flex:1;min-width:0;margin:0}.form-error{color:#ffb0b0;min-height:1.2em;margin:12px 0 0}.onboard-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:24px}
+@media(max-width:600px){.onboard-grid,.insurance-options{grid-template-columns:1fr}.onboard-wrap{width:calc(100% - 22px);margin-top:18px}}
+</style></head>
+<body>
+<header class="site-header"><div class="wrap"><div class="eyebrow">Personal Finance Assistant · Profile setup</div><h1>Let’s get to know you</h1><p class="tagline">A few details help personalize your financial health assessment. You can update them later.</p></div></header>
+<main class="onboard-wrap"><form id="onboarding-form" class="onboard-card" novalidate>
+<div class="onboard-grid">
+<div class="field"><label for="full_name">Your name</label><input id="full_name" name="full_name" type="text" maxlength="80" autocomplete="name" required><p class="field-error" data-error-for="full_name"></p></div>
+<div class="field"><label for="age">Age</label><input id="age" name="age" type="number" min="18" max="100" step="1" required><p class="field-error" data-error-for="age"></p></div>
+<div class="field"><label for="gender">Gender</label><select id="gender" name="gender" required><option value="">Choose an option</option><option value="female">Female</option><option value="male">Male</option><option value="non_binary">Non-binary</option><option value="prefer_not_to_say">Prefer not to say</option></select><p class="field-error" data-error-for="gender"></p></div>
+<div class="field"><label for="profession">Profession</label><input id="profession" name="profession" type="text" maxlength="80" placeholder="e.g. Student, Engineer" required><p class="field-error" data-error-for="profession"></p></div>
+<div class="field"><label for="marital_status">Marital status</label><select id="marital_status" name="marital_status" required><option value="">Choose an option</option><option value="single">Single</option><option value="married">Married</option><option value="partnered">In a relationship / partnered</option><option value="divorced">Divorced</option><option value="widowed">Widowed</option><option value="prefer_not_to_say">Prefer not to say</option></select><p class="field-error" data-error-for="marital_status"></p></div>
+</div>
+<fieldset><legend>Insurance &amp; protection</legend><p class="muted">These answers contribute to the protection portion of your financial health score.</p>
+<div class="insurance-options"><div class="check-row"><input id="has_health_insurance" name="has_health_insurance" type="checkbox"><label for="has_health_insurance">I have health insurance</label></div>
+<div class="check-row"><input id="has_life_insurance" name="has_life_insurance" type="checkbox"><label for="has_life_insurance">I have life insurance or income protection</label></div></div>
+</fieldset>
+<p id="form-message" class="form-error" role="alert"></p>
+<div class="onboard-actions"><button class="btn primary" type="submit" id="save-profile">Save profile &amp; continue</button><button class="btn" type="button" id="logout">Log out</button></div>
+<p class="fine">Your profile is saved to your account. Only provide information you are comfortable sharing.</p>
+</form></main>
+<script>
+(function(){'use strict';const form=document.getElementById('onboarding-form');const message=document.getElementById('form-message');const submit=document.getElementById('save-profile');
+function clearErrors(){form.querySelectorAll('[data-error-for]').forEach(e=>e.textContent='');form.querySelectorAll('[aria-invalid="true"]').forEach(e=>e.removeAttribute('aria-invalid'));message.textContent='';}
+function showErrors(errors){Object.entries(errors||{}).forEach(([key,value])=>{const el=form.elements.namedItem(key);const target=form.querySelector('[data-error-for="'+key+'"]');if(el)el.setAttribute('aria-invalid','true');if(target)target.textContent=value;});}
+function values(){return {full_name:form.full_name.value.trim(),age:form.age.value,gender:form.gender.value,profession:form.profession.value.trim(),marital_status:form.marital_status.value,has_health_insurance:form.has_health_insurance.checked,has_life_insurance:form.has_life_insurance.checked};}
+fetch('/api/onboarding',{credentials:'same-origin'}).then(r=>r.json()).then(data=>{if(data.completed&&data.profile){const p=data.profile;form.full_name.value=p.full_name||'';form.age.value=p.age||'';form.gender.value=p.gender||'';form.profession.value=p.profession||'';form.marital_status.value=p.marital_status||'';form.has_health_insurance.checked=!!p.has_health_insurance;form.has_life_insurance.checked=!!p.has_life_insurance;}}).catch(()=>{});
+form.addEventListener('submit',async e=>{e.preventDefault();clearErrors();submit.disabled=true;submit.textContent='Saving…';try{const r=await fetch('/api/onboarding',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify(values())});const d=await r.json();if(!r.ok||!d.ok){showErrors(d.field_errors||{});message.textContent=d.error||'Could not save your profile. Please try again.';return;}window.location.replace('/');}catch(err){message.textContent='Could not reach the server. Please check your connection and try again.';}finally{submit.disabled=false;submit.textContent='Save profile & continue';}});
+document.getElementById('logout').addEventListener('click',async()=>{try{await fetch('/api/logout',{method:'POST',credentials:'same-origin'});}finally{window.location.replace('/login');}});
+})();
+</script></body></html>
